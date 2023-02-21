@@ -23,7 +23,8 @@ function isValidEmail($email) {
     $queryResult = mysqli_query($conn,$sql);
     $count = mysqli_num_rows($queryResult);
     if($count>0) {
-        return true;
+        return true; 
+        
     }
     else {
         return false;
@@ -33,25 +34,30 @@ function isValidEmail($email) {
 
 // -------- Check If login credentials are correct
 function checkLoginCred($email,$password) {
+    // Wont be needing this function when i am done.
     $conn = dbconnect();
-    $sql = "SELECT email FROM users WHERE email='$email' AND password='$password'";
+    $sql = "SELECT password FROM users WHERE email='$email' ";
     $queryResult = mysqli_query($conn,$sql);
+    $hashPass = mysqli_fetch_column($queryResult);
     $count = mysqli_num_rows($queryResult);
-    if($count>0) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return password_verify($password,$hashPass);
 }
 
 // ---------- Create a new user
 function createUser($email,$password) {
     $conn = dbconnect();
-    $sql = "INSERT INTO users (email,password) VALUES ('$email','$password')";
+
+    $securePass = encryptPassword($password);
+
+    $sql = "INSERT INTO users (email,password) VALUES ('$email','$securePass')";
     $queryResult = mysqli_query($conn,$sql);
     return $queryResult;
 }
 
-
+// Create function to encrpt password
+function encryptPassword($password) 
+{
+    return password_hash($password, PASSWORD_BCRYPT);
+     
+}
 ?>
